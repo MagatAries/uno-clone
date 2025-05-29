@@ -7,8 +7,8 @@ enum CardType { NUMBER, SKIP, REVERSE, DRAW_TWO, WILD, WILD_DRAW_FOUR }
 #generating an uno deck 
 func generate_uno_deck() -> Array:
 	#empty deck array
-	var deck = []
-	var colors = [CardColor.RED, CardColor.BLUE, CardColor.GREEN, CardColor.YELLOW]
+	var deck := []
+	var colors := [CardColor.RED, CardColor.BLUE, CardColor.GREEN, CardColor.YELLOW]
 	
 	# 1x ZERO per color
 	for color in colors:
