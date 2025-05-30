@@ -18,6 +18,8 @@ func draw_card() -> Dictionary:
 	else:
 		print("Deck is empty!")
 		return {} #return null or empty dictionary -> returns dictionary  
+		
+#didnt expect 
 func shuffle_deck():
 	deck.shuffle()
 
