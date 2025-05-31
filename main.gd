@@ -16,9 +16,23 @@ func _ready() -> void:
 	
 	GameManagerSingleton.center_card = deck_node.draw_card()
 	print("center_card ",GameManagerSingleton.center_card)
-	GameManagerSingleton.get_current_player().check_hand(GameManagerSingleton.center_card)
-	print("playable cards:",GameManagerSingleton.get_current_player().check_hand(GameManagerSingleton.center_card))
-	pass # Replace with function body.
+	var playable_cards = GameManagerSingleton.get_current_player().check_hand(GameManagerSingleton.center_card)
+	print("playable cards:",playable_cards)
+	if playable_cards:
+		var played_card = GameManagerSingleton.get_current_player().play_card(playable_cards)
+		print("played card: ", played_card)
+		GameManagerSingleton.discard_center(played_card)
+		print("discarded pile size: ", GameManagerSingleton.discard.size(), "discard pile:", GameManagerSingleton.discard)
+		print("new center card: ", GameManagerSingleton.center_card)
+	else:
+		print("No playable cards")
+		GameManagerSingleton.get_current_player().receive_card(deck_node.draw_card())
+		print("current player hand:",GameManagerSingleton.get_current_player().hand)
+	
+	#next turn 
+	#next turn requires getcurrentplayer 
+	#depending on center_card, change 
+	
 
 #deal cards 7 per player
 func deal_cards_to_players(cards_per_player:int = 7):

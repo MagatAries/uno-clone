@@ -23,8 +23,9 @@ func is_human_turn() -> bool:
 func is_reversed() -> bool:
 	return false
 
-func discard_center():
+func discard_center(played_card):
 	discard.append(center_card)
+	center_card = played_card
 
 #how do i move to the next trurn
 func next_turn():
@@ -39,5 +40,6 @@ func next_turn():
 		current_player_index -=1
 	else:
 		current_player_index +=1
-	
+
+ 
 	
