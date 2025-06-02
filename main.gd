@@ -21,14 +21,17 @@ func _ready() -> void:
 	if playable_cards:
 		var played_card = GameManagerSingleton.get_current_player().play_card(playable_cards)
 		print("played card: ", played_card)
-		GameManagerSingleton.discard_center(played_card)
+		#GameManagerSingleton.discard_center(played_card)
+		##Testing purposes
+		var test_card = {"color": 2, "type": 3, "value": null}
+		GameManagerSingleton.discard_center(test_card)
 		print("discarded pile size: ", GameManagerSingleton.discard.size(), "discard pile:", GameManagerSingleton.discard)
 		print("new center card: ", GameManagerSingleton.center_card)
 	else:
 		print("No playable cards")
 		GameManagerSingleton.get_current_player().receive_card(deck_node.draw_card())
 		print("current player hand:",GameManagerSingleton.get_current_player().hand)
-	
+	GameManagerSingleton.next_turn(deck_node)
 	#next turn 
 	#next turn requires getcurrentplayer 
 	#depending on center_card, change 
