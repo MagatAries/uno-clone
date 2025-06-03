@@ -1,9 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://dfles5gnl5ehc"]
+[gd_scene load_steps=3 format=3 uid="uid://dfles5gnl5ehc"]
 
-[ext_resource type="Script" uid="uid://c07u12q5hf6uk" path="res://card.gd" id="1_kikvd"]
+[ext_resource type="Script" uid="uid://8lcjk3dfcgxg" path="res://card.gd" id="1_kikvd"]
+[ext_resource type="Texture2D" uid="uid://bf6kel4p2d50d" path="res://assets/cards/Blue_0.png" id="2_rjlel"]
 
-[node name="Card" type="TextureRect"]
-offset_right = 100.0
-offset_bottom = 125.0
+[node name="Card" type="Node2D"]
 scale = Vector2(1, 1.25)
 script = ExtResource("1_kikvd")
+
+[node name="CardSprite" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_rjlel")

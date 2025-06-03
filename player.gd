@@ -58,3 +58,22 @@ func play_card(playable_cards:Array) -> Dictionary:
 	var random_index = randi() % playable_cards.size()
 	return playable_cards[random_index]
 	
+func take_turn(deck_node, center_card):
+	
+	var playable_cards = check_hand(center_card)
+	print("playable cards:",playable_cards)
+	if playable_cards:
+		var played_card = play_card(playable_cards)
+		print("played card: ", played_card)
+		#discard_center(played_card)
+		##Testing purposes
+		var test_card = {"color": 2, "type": 3, "value": null}
+		GameManagerSingleton.discard_center(test_card)
+		print("discarded pile size: ", GameManagerSingleton.discard.size(), "discard pile:", GameManagerSingleton.discard)
+		print("new center card: ", center_card)
+	else:
+		print("No playable cards")
+		receive_card(deck_node.draw_card())
+		print("current player hand:",hand)
+	pass
+	

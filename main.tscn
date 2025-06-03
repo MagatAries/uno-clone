@@ -10,6 +10,7 @@ script = ExtResource("1_ig7tw")
 [node name="Deck" parent="." instance=ExtResource("2_0xm2m")]
 
 [node name="Button" type="Button" parent="."]
+visible = false
 offset_left = 46.0
 offset_top = 42.0
 offset_right = 117.0
@@ -17,5 +18,7 @@ offset_bottom = 94.0
 text = "draw
 "
 script = ExtResource("3_h2yge")
+
+[node name="CardContainer" type="Node2D" parent="."]
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

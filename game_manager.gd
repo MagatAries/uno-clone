@@ -2,6 +2,8 @@ extends Node
 class_name GameManager
 
 const Player := preload("res://player.gd")
+
+
 var players :=[]
 var current_player_index = 0
 var human_player_index = 0
