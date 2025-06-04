@@ -12,11 +12,14 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func set_card_data(data:Dictionary):
+func set_card_data(data:Dictionary, show_back:= false):
 	var card_name = get_card_texture_name(data)
 	var texture_path = "res://assets/cards/%s.png" % card_name
-	print(texture_path)
-	$CardSprite.texture = load(texture_path)
+	if show_back:
+		$CardSprite.texture = load("res://assets/misc/Deck.png")
+	#print(texture_path)
+	else:
+		$CardSprite.texture = load(texture_path)
 	
 func get_card_texture_name(data:Dictionary) -> String:
 	var card_name:String

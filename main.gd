@@ -5,23 +5,14 @@ extends Node
 @onready var deck_node := $Deck
 @onready var card_container = $CardContainer
 const Player:= preload("res://player.gd")
-const DeckGenerator := preload("res://deck_generator.gd")
+#const DeckGenerator := preload("res://deck_generator.gd")
+#const DeckNode := preload("res://deck.gd")
 const CardScene := preload("res://card.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	var deck_gen = DeckGenerator.new()
-	var cards_data = deck_gen.generate_uno_deck()
-	for i in range(10):  # just try 5 cards for now
-		var data = cards_data[i]
-		#print(data)
-		var card_instance = CardScene.instantiate()
-		card_instance.set_card_data(data)  # this sets the image, color, etc
-		#print(card_instance)
-		#add_child(card_instance)  # put it in the scene
-		card_container.add_child(card_instance)
-		card_instance.position = Vector2((150 * i) + 100, 300)  # space them out horizontally
-	#setup_game()
+	setup_game()
+	
 	#play_turn()
 	
 	#GameManagerSingleton.center_card = deck_node.draw_card()
@@ -87,11 +78,46 @@ func setup_game():
 	deal_cards_to_players()
 	
 	GameManagerSingleton.center_card = deck_node.draw_card()
-	var card_scene = preload("res://Card.tscn")
-	var card_instance = card_scene.instantiate()
-	card_instance.set_card_data(GameManagerSingleton.center_card)
-	add_child(card_instance)
-	card_instance.position = Vector2(960, 540)  # move this where your board center is
+	
+	var center_card_instance = CardScene.instantiate()
+	center_card_instance.set_card_data(GameManagerSingleton.center_card)
+	$CardContainer.add_child(center_card_instance)
+	center_card_instance.position = Vector2(960, 540)  # move this where your board center is
+	
+	#var deck_instance = CardScene.instantiate()
+	#deck_instance.set_card_data(deck_node)
+	#$CardContainer.add_child(deck_instance)
+	#deck_instance.position = Vector2(1000,540)
+	
+	for i in range(deck_node.deck.size()):
+		var center_deck = CardScene.instantiate()
+		
+		center_deck.set_card_data(deck_node.deck[i],true) 
+		$CardContainer.add_child(center_deck)
+		center_deck.position = Vector2(1200,540)
+	#var deck_gen = DECKGENERATOR.new()
+	#var cards_data = deck_gen.generate_uno_deck()
+	for player in GameManagerSingleton.players: 
+		#print(player.hand)
+		for j in range(player.hand.size()):
+			var is_human = player == GameManagerSingleton.players[0]
+			
+			var data = player.hand[j]
+			var current_hand_instance = CardScene.instantiate()
+			current_hand_instance.set_card_data(data, not is_human)  # this sets the image, color, etc
+			##print(card_instance)
+			#add_child(current_hand_scene)  # put it in the scene
+			card_container.add_child(current_hand_instance)
+			print(player)
+			if player == GameManagerSingleton.players[0]:
+				current_hand_instance.position = Vector2((150 * j) + 500, 1000)  # space them out horizontally
+			elif player == GameManagerSingleton.players[2]:
+				current_hand_instance.position = Vector2((150 * j) + 500, 100)  # space them out horizontally
+			elif player == GameManagerSingleton.players[1]:
+				current_hand_instance.position = Vector2(1830,(150 * j) + 100)  # space them out vertically
+			elif player == GameManagerSingleton.players[3]:
+				current_hand_instance.position = Vector2(100,(150 * j) + 100)  # space them out vertically
+			
 	#debug_print_all_hands()
 func play_turn():
 	#var current = GameManagerSingleton.get_current_player()
