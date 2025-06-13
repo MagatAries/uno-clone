@@ -1,25 +1,43 @@
 extends Node2D
 
 var card_data:Dictionary
-
+var is_hovered = false
+var is_dragging = false
+var drag_offset = Vector2.ZERO
+var hover_offset = Vector2.ZERO
 const deckGen := preload("res://deck_generator.gd")
+const player := preload("res://player.gd")
+var belongs_to_player := false
+var original_position = Vector2.ZERO
+var base_hover_position = Vector2.ZERO
+var current_card:Dictionary
+#var original_y := 0.0
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	$Area2D.mouse_entered.connect(_on_area_2d_mouse_entered)
+	$Area2D.mouse_exited.connect(_on_area_2d_mouse_exited)
+	$Area2D.input_event.connect(_on_area_2d_input_event)
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	
+	if is_dragging:
+		is_hovered = false
+		position = get_global_mouse_position() + drag_offset
 	pass
 
 func set_card_data(data:Dictionary, show_back:= false):
-	var card_name = get_card_texture_name(data)
-	var texture_path = "res://assets/cards/%s.png" % card_name
-	if show_back:
-		$CardSprite.texture = load("res://assets/misc/Deck.png")
-	#print(texture_path)
-	else:
-		$CardSprite.texture = load(texture_path)
+	card_data = data
+	if data:
+		var card_name = get_card_texture_name(data)
+		var texture_path = "res://assets/cards/%s.png" % card_name
+		if show_back:
+			$CardSprite.texture = load("res://assets/misc/Deck.png")
+		#print(texture_path)
+		else:
+			$CardSprite.texture = load(texture_path)
 	
 func get_card_texture_name(data:Dictionary) -> String:
 	var card_name:String
@@ -82,3 +100,59 @@ func get_card_texture_name(data:Dictionary) -> String:
 	
 	card_name = card_color + "_" + card_value
 	return card_name
+
+
+func _on_area_2d_mouse_entered() -> void:
+	if not belongs_to_player or GameManagerSingleton.is_dragging_card or is_hovered:
+		return
+	base_hover_position = position
+	original_position = position
+	position = base_hover_position - Vector2(0, 20)
+	is_hovered = true
+
+
+func _on_area_2d_mouse_exited() -> void:
+	if not belongs_to_player or GameManagerSingleton.is_dragging_card or not is_hovered:
+		return
+	position = base_hover_position
+	is_hovered = false
+	
+func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	var playable_cards = GameManagerSingleton.get_current_player().check_hand(GameManagerSingleton.center_card)
+	var card_holding:Dictionary
+	if not belongs_to_player:
+		return
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			GameManagerSingleton.is_dragging_card = true
+			is_dragging = true
+			drag_offset = position - get_global_mouse_position()
+			print("card: ", card_data)
+		elif event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			GameManagerSingleton.is_dragging_card = false
+			is_dragging = false
+			var drop_zone = get_tree().get_root().get_node("Main/DropZone")
+			var collision_shape = drop_zone.get_node("CollisionShape2D")
+			var shape := collision_shape.shape as RectangleShape2D
+			var extents = shape.extents
+			#if drop_zone and drop_zone.is_position_inside(global_position):
+			if collision_shape and collision_shape.shape is RectangleShape2D:
+				var transform: Transform2D = collision_shape.get_global_transform()
+				#draw_set_transform(transform.origin, transform.get_rotation(), transform.get_scale())
+				var rect = Rect2(transform.origin - extents, extents * 2)
+				print("shape rectangle",rect)
+				if playable_cards:
+					#GameManagerSingleton.get_current_player().play_card(card_data)
+					print("playable:",GameManagerSingleton.get_current_player().check_hand(GameManagerSingleton.center_card))
+					if rect.has_point(global_position):
+						print("play card", card_data)
+						GameManagerSingleton.get_current_player().take_turn_from_input(deckGen, card_data)
+					else:
+						position = base_hover_position
+						print("did not play card")
+				#else:
+					#position = base_hover_position
+					#print("did not play card")
+			else:
+				position = base_hover_position 
+			#manually check if its in playable area

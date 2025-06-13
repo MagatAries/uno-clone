@@ -10,6 +10,8 @@ var human_player_index = 0
 var direction = 1
 var center_card:Dictionary = {}
 var discard:Array = []
+var is_dragging_card :bool= false
+var current_card:Dictionary
 
 #how do i know whos turn it is
 func get_current_player() -> Player:
@@ -28,6 +30,7 @@ func is_reversed() -> bool:
 func discard_center(played_card):
 	discard.append(center_card)
 	center_card = played_card
+	#get_current_player().hand.pop_at()
 
 #how do i move to the next trurn
 #input argument of current player, direction, center_card
@@ -41,6 +44,7 @@ func next_turn(deck_node):
 	##
 	##this will make the current player index +=1
 	#initially check center card
+	##BUG: noticed +2 going to the current player who PLAYED the +2 card, not sure if skip as well
 	if center_card.type == 3: #draw two
 		get_current_player().receive_card(deck_node.draw_card())
 		get_current_player().receive_card(deck_node.draw_card())

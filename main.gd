@@ -4,6 +4,7 @@ extends Node
 #var full_deck = DeckGenerator.generate_uno_deck()
 @onready var deck_node := $Deck
 @onready var card_container = $CardContainer
+@onready var player_card_container = $PlayerCardContainer
 const Player:= preload("res://player.gd")
 #const DeckGenerator := preload("res://deck_generator.gd")
 #const DeckNode := preload("res://deck.gd")
@@ -60,25 +61,73 @@ func setup_players():
 		GameManagerSingleton.players.append(Player.new())
 
 func _on_button_pressed() -> void:
-	GameManagerSingleton.get_current_player().receive_card(deck_node.draw_card())
-	print("current player:", GameManagerSingleton.get_current_player())
-	print(GameManagerSingleton.get_current_player().hand)
-	GameManagerSingleton.next_turn(deck_node)
-	
-	print("current player nom:", GameManagerSingleton.get_current_player())
-	
+	play_turn()
+	print("Current Player",GameManagerSingleton.get_current_player())
+	#GameManagerSingleton.get_current_player().receive_card(deck_node.draw_card())
+	#print("current player:", GameManagerSingleton.get_current_player())
+	#print(GameManagerSingleton.get_current_player().hand)
+	#GameManagerSingleton.next_turn(deck_node)
+	#
+	#print("current player nom:", GameManagerSingleton.get_current_player())
+	#
 	#GameManagerSingleton.get_current_player()
 	#var card_data = deck_node.draw_card()
 	
 	pass # Replace with function body.
 
+func refresh_visuals():
+	#card_container.clear()
+	if card_container:
+		for child in card_container.get_children():
+			child.queue_free()
+	
+	var center_card_instance = CardScene.instantiate()
+	center_card_instance.set_card_data(GameManagerSingleton.center_card)
+	card_container.add_child(center_card_instance)
+	center_card_instance.position = Vector2(960, 540)  # move this where your board center is
+	
+	#var deck_instance = CardScene.instantiate()
+	#deck_instance.set_card_data(deck_node)
+	#$CardContainer.add_child(deck_instance)
+	#deck_instance.position = Vector2(1000,540)
+	
+	for i in range(deck_node.deck.size()):
+		var center_deck = CardScene.instantiate()
+		center_deck.set_card_data(deck_node.deck[i],true) 
+		card_container.add_child(center_deck)
+		center_deck.position = Vector2(1200,540)
+	#var deck_gen = DECKGENERATOR.new()
+	#var cards_data = deck_gen.generate_uno_deck()
+	for player in GameManagerSingleton.players: 
+		#print(player.hand)
+		for j in range(player.hand.size()):
+			var is_human = player == GameManagerSingleton.players[0]
+			
+			var data = player.hand[j]
+			var current_hand_instance = CardScene.instantiate()
+			current_hand_instance.set_card_data(data, not is_human)  # this sets the image, color, etc
+			##print(card_instance)
+			if is_human:
+				player_card_container.add_child(current_hand_instance)
+			else:
+				card_container.add_child(current_hand_instance)
+			#print(player)
+			if player == GameManagerSingleton.players[0]:
+				current_hand_instance.position = Vector2((150 * j) + 500, 1000)  # space them out horizontally
+			elif player == GameManagerSingleton.players[2]:
+				current_hand_instance.position = Vector2((150 * j) + 500, 100)  # space them out horizontally
+			elif player == GameManagerSingleton.players[1]:
+				current_hand_instance.position = Vector2(1830,(150 * j) + 100)  # space them out vertically
+			elif player == GameManagerSingleton.players[3]:
+				current_hand_instance.position = Vector2(100,(150 * j) + 100)  # space them out vertically
+			
 func setup_game():
 	setup_players()
 	$Deck.shuffle_deck()
 	deal_cards_to_players()
 	
 	GameManagerSingleton.center_card = deck_node.draw_card()
-	
+	#refresh_visuals()
 	var center_card_instance = CardScene.instantiate()
 	center_card_instance.set_card_data(GameManagerSingleton.center_card)
 	$CardContainer.add_child(center_card_instance)
@@ -91,7 +140,6 @@ func setup_game():
 	
 	for i in range(deck_node.deck.size()):
 		var center_deck = CardScene.instantiate()
-		
 		center_deck.set_card_data(deck_node.deck[i],true) 
 		$CardContainer.add_child(center_deck)
 		center_deck.position = Vector2(1200,540)
@@ -106,8 +154,13 @@ func setup_game():
 			var current_hand_instance = CardScene.instantiate()
 			current_hand_instance.set_card_data(data, not is_human)  # this sets the image, color, etc
 			##print(card_instance)
-			#add_child(current_hand_scene)  # put it in the scene
-			card_container.add_child(current_hand_instance)
+			if is_human:
+				current_hand_instance.belongs_to_player = true
+				player_card_container.add_child(current_hand_instance)
+			else:
+				#print("belongs to player: ", GameManagerSingleton.current_player_index)
+				current_hand_instance.belongs_to_player = false
+				card_container.add_child(current_hand_instance)
 			print(player)
 			if player == GameManagerSingleton.players[0]:
 				current_hand_instance.position = Vector2((150 * j) + 500, 1000)  # space them out horizontally
@@ -130,12 +183,19 @@ func play_turn():
 		## Optional: add delay or call this again via a timer
 		#play_turn()
 		
-		
 	var current_player = GameManagerSingleton.get_current_player()
 	if GameManagerSingleton.is_human_turn():
 		return
+		#current_player.take_turn(deck_node,GameManagerSingleton.center_card)
+		#GameManagerSingleton.next_turn(deck_node)
 	else:
 		#print("current player hand:",GameManagerSingleton.get_current_player().hand)
 		#print("center_card ",GameManagerSingleton.center_card)
 		current_player.take_turn(deck_node,GameManagerSingleton.center_card)
 		GameManagerSingleton.next_turn(deck_node)
+	refresh_visuals()
+	
+
+
+func _on_drop_zone_area_entered(area: Area2D) -> void:
+	pass # Replace with function body.
